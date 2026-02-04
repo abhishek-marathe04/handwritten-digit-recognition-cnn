@@ -1,0 +1,36 @@
+[project]
+name = "handwritten-digit-recognition-cnn"
+version = "0.1.0"
+description = "Handwritten digit recognition using a CNN trained on MNIST with a Streamlit app for interactive inference"
+readme = "README.md"
+requires-python = ">=3.10"
+
+authors = [
+  { name = "Abhishek Marathe" }
+]
+
+dependencies = [
+  # Core ML
+  "torch>=2.1",
+  "torchvision>=0.16",
+
+  # Data & numerical
+  "numpy>=1.24",
+  "pillow>=10.0",
+
+  # Visualization (optional but useful)
+  "matplotlib>=3.7",
+
+  # App
+  "streamlit>=1.30",
+
+  # Utilities
+  "tqdm>=4.66"
+]
+
+[tool.uv]
+dev-dependencies = [
+  "black>=24.1",
+  "ruff>=0.2",
+  "ipykernel>=6.29"
+]
