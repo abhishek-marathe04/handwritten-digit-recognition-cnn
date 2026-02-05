@@ -13,19 +13,16 @@ dependencies = [
   # Core ML
   "torch>=2.1",
   "torchvision>=0.16",
-
   # Data & numerical
   "numpy>=1.24",
   "pillow>=10.0",
-
   # Visualization (optional but useful)
   "matplotlib>=3.7",
-
   # App
   "streamlit>=1.30",
-
   # Utilities
-  "tqdm>=4.66"
+  "tqdm>=4.66",
+  "streamlit-drawable-canvas>=0.9.3",
 ]
 
 [tool.uv]
