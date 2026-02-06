@@ -34,9 +34,11 @@ def make_prediction(input_image):
 
         # Get predictions probablity (logits -> Predictions probablity)
         pred_prob = torch.softmax(pred_logit.squeeze(), dim=0)
-
+        probs_np = pred_prob.squeeze().cpu().numpy()
+        
         pred_label = class_names[torch.argmax(pred_prob)]
+        confidence = probs_np[torch.argmax(pred_prob)] * 100
 
-    return pred_label
+    return pred_label, confidence
 
 

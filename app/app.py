@@ -35,9 +35,9 @@ with col1:
     canvas_result = st_canvas(
         background_color="black",
         stroke_color="white",
-        height=220,
-        width=220,
-        stroke_width=12,
+        height=200,
+        width=200,
+        stroke_width=10,
         drawing_mode="freedraw",
         key="canvas",
     )
@@ -66,11 +66,41 @@ if canvas_result.image_data is not None and predict_clicked:
     # Convert to grayscale
     pil_img = pil_img.convert("L")
 
-    # Resize to MNIST size
-    pil_img_28 = pil_img.resize((28, 28))
+    img_np = np.array(pil_img)
+
+    # Anything above this is considered "digit", This gives you a mask of where the digit exists.
+    threshold = 20
+    binary = img_np > threshold
+
+    # We now find the smallest box that contains all True pixels. This gives you all (row, col) locations of the digit.
+    coords = np.column_stack(np.where(binary))
+
+    # This defines: [top, left] → [bottom, right]
+    y_min, x_min = coords.min(axis=0)
+    y_max, x_max = coords.max(axis=0)
+
+    # Crop the digit tightly, Now, No extra black space, Just digit
+    cropped = img_np[y_min:y_max+1, x_min:x_max+1]
+
+    # Make it square. If you resize directly → distortion. Now, Aspect ratio preserved
+    h, w = cropped.shape
+    size = max(h, w)
+
+    square = np.zeros((size, size), dtype=np.uint8)
+
+    y_offset = (size - h) // 2
+    x_offset = (size - w) // 2
+
+    square[y_offset:y_offset+h, x_offset:x_offset+w] = cropped
+
+    square_pil = Image.fromarray(square)
+    final_img = square_pil.resize((28, 28))
+
+    # # Resize to MNIST size
+    st.image(final_img, caption="Centered 28x28 input to model")
 
     # Convert to NumPy
-    img_np = np.array(pil_img_28)
+    img_np = np.array(final_img)
 
     # Normalize (MNIST)
     img_np = img_np / 255.0
@@ -80,7 +110,7 @@ if canvas_result.image_data is not None and predict_clicked:
     img_tensor = torch.tensor(img_np, dtype=torch.float32).unsqueeze(0)
 
     # Inference
-    output = make_prediction(input_image=img_tensor)
+    output, confidence = make_prediction(input_image=img_tensor)
 
     # ------------------------
     # Display result
@@ -88,6 +118,7 @@ if canvas_result.image_data is not None and predict_clicked:
     prediction_placeholder.markdown(
         f"### ✅ Predicted Digit: **{output}**"
     )
+    
 
 elif predict_clicked:
     st.warning("Please draw a digit before clicking Predict.")
