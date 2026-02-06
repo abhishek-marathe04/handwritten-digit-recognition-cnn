@@ -30,15 +30,28 @@ def make_prediction(input_image):
     mnist_model.eval()
     #Forward pass
     with torch.no_grad():
-        pred_logit = mnist_model(input_image.unsqueeze(0))
+        # pred_logit = mnist_model(input_image.unsqueeze(0))
 
+        # # Get predictions probablity (logits -> Predictions probablity)
+        # pred_prob = torch.softmax(pred_logit.squeeze(), dim=0)
+        # probs_np = pred_prob.squeeze().cpu().numpy()
+        
+        # pred_label = class_names[torch.argmax(pred_prob)]
+        # confidence = probs_np[torch.argmax(pred_prob)] * 100
+
+        conv1_output = mnist_model.conv_layer_1(input_image.unsqueeze(0))
+        conv2_output = mnist_model.conv_layer_2(conv1_output)
+        pred_logit = mnist_model.classification_layer(conv2_output)
+        
         # Get predictions probablity (logits -> Predictions probablity)
         pred_prob = torch.softmax(pred_logit.squeeze(), dim=0)
         probs_np = pred_prob.squeeze().cpu().numpy()
-        
         pred_label = class_names[torch.argmax(pred_prob)]
         confidence = probs_np[torch.argmax(pred_prob)] * 100
 
-    return pred_label, confidence
+    feature_maps_conv_1 = conv1_output.squeeze(0)
+    feature_maps_conv_2 = conv2_output.squeeze(0)
+
+    return pred_label, confidence, feature_maps_conv_1, feature_maps_conv_2
 
 
